@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Pesquisa de satisfação — Síndico(a)</title>
+<style>
+  :root{ --navy:#222F59; --gold:#E07B2C; --bg:#F4F4F4; --txt:#1a2333; --mut:#667085; --line:#d9dce3; --ok:#16a34a; --am:#f59e0b; --ruim:#dc2626; }
+  *{ box-sizing:border-box; }
+  body{ margin:0; font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif; background:var(--bg); color:var(--txt); line-height:1.45; }
+  .topo{ background:var(--navy); color:#fff; padding:16px 20px; border-bottom:4px solid var(--gold); }
+  .marca{ font-weight:800; letter-spacing:.14em; font-size:18px; } .marca span{ font-weight:400; letter-spacing:.2em; font-size:13px; opacity:.85; }
+  .sub{ font-size:12px; opacity:.8; letter-spacing:.08em; text-transform:uppercase; margin-top:2px; }
+  main{ max-width:640px; margin:0 auto; padding:18px 16px 40px; }
+  h1{ font-size:21px; margin:6px 0 4px; color:var(--navy); } .lead{ margin:0 0 14px; color:var(--mut); font-size:14.5px; }
+  .cond{ background:#fff; border:1px solid var(--line); border-top:4px solid var(--gold); border-radius:10px; padding:12px 14px; margin-bottom:14px; }
+  .cond small{ display:block; color:var(--mut); font-size:11.5px; text-transform:uppercase; letter-spacing:.06em; } .cond b{ font-size:18px; color:var(--navy); }
+  fieldset{ background:#fff; border:1px solid var(--line); border-radius:10px; padding:14px 14px 10px; margin:0 0 14px; min-width:0; }
+  legend{ font-weight:700; color:var(--navy); padding:0 6px; font-size:15px; }
+  label{ display:block; font-size:14px; font-weight:600; margin:0 0 12px; } label .op{ font-weight:400; color:var(--mut); font-size:12.5px; }
+  input[type=text],input[type=email],input[type=tel],textarea,select{ width:100%; margin-top:5px; padding:12px; border:1px solid #c5c9d3; border-radius:8px; font-size:16px; font-family:inherit; background:#fff; }
+  input:focus,textarea:focus,select:focus{ outline:2px solid var(--gold); border-color:var(--gold); }
+  .q{ margin:0 0 16px; } .q .t{ font-weight:600; font-size:14.5px; margin-bottom:2px; } .q .h{ font-size:12.5px; color:var(--mut); margin-bottom:7px; }
+  .escala{ display:flex; flex-wrap:wrap; gap:6px; } .escala button{ flex:1 0 calc(16.6% - 6px); min-width:44px; height:46px; border:1px solid #b9bfcc; background:#fff; border-radius:8px; font-size:17px; font-weight:700; color:var(--navy); cursor:pointer; }
+  .escala button.nao{ flex:1 0 100%; height:40px; font-size:14px; font-weight:600; color:var(--mut); }
+  .escala button[aria-pressed=true].r{ background:var(--ruim); border-color:var(--ruim); color:#fff; } .escala button[aria-pressed=true].a{ background:var(--am); border-color:var(--am); color:#1a1a1a; }
+  .escala button[aria-pressed=true].v{ background:var(--ok); border-color:var(--ok); color:#fff; } .escala button[aria-pressed=true].nao{ background:#e5e7eb; border-color:#9ca3af; color:#374151; }
+  .fim{ display:flex; justify-content:space-between; font-size:11.5px; color:var(--mut); margin-top:3px; }
+  .erro-campo{ outline:2px solid var(--ruim); border-radius:8px; }
+  #erro{ background:#fee2e2; color:#991b1b; border:1px solid #fecaca; border-radius:8px; padding:10px 12px; font-size:14px; margin:0 0 12px; }
+  #enviar{ width:100%; border:0; background:var(--gold); color:#fff; font-size:17px; font-weight:800; padding:15px; border-radius:10px; cursor:pointer; } #enviar:disabled{ opacity:.6; cursor:wait; }
+  .hint{ font-size:13px; color:var(--mut); margin:0 0 12px; }
+  #telaOk{ text-align:center; background:#fff; border:1px solid var(--line); border-top:4px solid var(--ok); border-radius:10px; padding:28px 18px; } #telaOk h2{ color:var(--navy); margin:6px 0; } #telaOk .ic{ font-size:46px; }
+  #telaOk button{ margin-top:14px; background:#fff; border:1px solid var(--navy); color:var(--navy); padding:11px 16px; border-radius:8px; font-weight:700; font-size:15px; cursor:pointer; }
+  .rodape{ text-align:center; font-size:12px; color:var(--mut); margin-top:18px; }
+  [hidden]{ display:none !important; }
+</style>
+</head>
+<body>
+<header class="topo"><div class="marca">SERVIS <span>ELETRÔNICA</span></div><div class="sub">Portaria Remota · Sua opinião</div></header>
+<main>
+  <div id="telaForm">
+    <h1>Pesquisa de satisfação — Síndico(a)</h1>
+    <p class="lead">Leva cerca de 3 minutos. Suas notas ajudam a melhorar o atendimento ao seu condomínio.</p>
+    <div class="cond" id="blocoCondominio" hidden><small>Condomínio</small><b id="nomeCondominio"></b><span id="filialCondominio" hidden style="display:block; font-size:12.5px; color:var(--mut); margin-top:2px;"></span></div>
+    <form id="f" novalidate>
+      <fieldset>
+        <legend>Quem está respondendo</legend>
+        <label id="campoCondominioLivre" hidden>Nome do condomínio *<input type="text" id="condominioLivre" maxlength="120" placeholder="Digite o nome do seu condomínio" autocomplete="off"></label>
+        <label>Casa ou apartamento (número) *<input type="text" id="unidade" maxlength="30" placeholder="Ex.: Apto 302 ou Casa 12 (síndico profissional: escreva Administração)" autocomplete="off"></label>
+        <label>Seu nome <span class="op">(opcional)</span><input type="text" id="nome" maxlength="80" autocomplete="name"></label>
+        <label>Telefone / WhatsApp <span class="op">(opcional)</span><input type="tel" id="telefone" maxlength="25" inputmode="tel" autocomplete="tel"></label>
+        <label>E-mail <span class="op">(opcional)</span><input type="email" id="email" maxlength="80" autocomplete="email"></label>
+      </fieldset>
+      <fieldset>
+        <legend>Sua avaliação</legend>
+        <p class="hint">Dê uma nota de <b>0</b> (muito ruim) a <b>10</b> (excelente).</p>
+        <div id="notasPadrao"></div>
+      </fieldset>
+      <fieldset>
+        <legend>Nota por setor</legend>
+        <p class="hint">Avalie só os setores com os quais você já teve contato. Os outros pode marcar <b>Não usei</b> ou deixar em branco.</p>
+        <div id="setores"></div>
+      </fieldset>
+      <fieldset>
+        <legend>Continuidade</legend>
+        <label>Pretende continuar com a Servis no próximo período? <span class="op">(opcional)</span>
+          <select id="pretendeRenovar"><option value="">Prefiro não responder</option><option>Sim</option><option>Talvez</option><option>Não</option></select>
+        </label>
+      </fieldset>
+      <fieldset>
+        <legend>Comentários</legend>
+        <label>O que podemos melhorar? <span class="op">(opcional)</span><textarea id="comentario" rows="4" maxlength="1500" placeholder="Conte o que aconteceu, o que gostou ou o que precisa melhorar"></textarea></label>
+      </fieldset>
+      <input type="text" id="site" tabindex="-1" autocomplete="off" aria-hidden="true" style="position:absolute; left:-9999px; height:0; width:0; opacity:0;">
+      <p id="erro" role="alert" hidden></p>
+      <button type="submit" id="enviar">Enviar minha opinião</button>
+    </form>
+  </div>
+  <div id="telaOk" hidden>
+    <div class="ic">✅</div>
+    <h2>Obrigado pela sua opinião!</h2>
+    <p>Sua resposta foi enviada e vai ajudar a Servis a melhorar o atendimento.</p>
+    <button type="button" id="outra">Responder para outra unidade</button>
+  </div>
+  <p class="rodape">Servis Eletrônica · Portaria Remota<br>Suas respostas são usadas apenas para melhorar o serviço.</p>
+</main>
+<script>
+(function(){
+  var SUPABASE_URL = 'https://nnfwmkkcctnwcrjmspij.supabase.co';
+  var SUPABASE_KEY = 'sb_publishable_Ua2Ua9PYKoeHjN87dDP2_g_TM5ctjRw';
+  var TABELA = 'pesquisa_sindico';
+  var NOTAS = [{"id": "nota_geral", "rotulo": "De 0 a 10, o quanto você recomendaria a Servis a outro síndico?", "ajuda": ""}, {"id": "nota_atendimento", "rotulo": "Atendimento da portaria remota", "ajuda": "Cordialidade, clareza e atenção de quem atende."}, {"id": "nota_rapidez", "rotulo": "Rapidez para resolver ocorrências e solicitações", "ajuda": ""}, {"id": "nota_seguranca", "rotulo": "Segurança do condomínio com o serviço da Servis", "ajuda": ""}];
+  var SETORES = [{"nome": "Central", "rotulo": "Central (atendimento da portaria remota)", "ajuda": "Atendimento, liberação de acessos e acompanhamento da portaria."}, {"nome": "Técnica", "rotulo": "Técnica (manutenção e suporte)", "ajuda": "Visitas e reparos de equipamentos, câmeras, portões e interfones."}, {"nome": "Sucesso do Cliente", "rotulo": "Sucesso do Cliente (acompanhamento do condomínio)", "ajuda": "Retorno de solicitações, reclamações e relatórios."}, {"nome": "Financeiro", "rotulo": "Financeiro (cobrança e boletos)", "ajuda": ""}, {"nome": "Comercial", "rotulo": "Comercial (contratos, propostas e renovações)", "ajuda": ""}, {"nome": "Operações", "rotulo": "Operações (acompanhamento da operação do condomínio)", "ajuda": ""}, {"nome": "Backoffice", "rotulo": "Backoffice (cadastros e documentos)", "ajuda": ""}];
+  var EXTRAS_NOTAS = [{"id": "nota_acompanhamento", "rotulo": "Acompanhamento do Sucesso do Cliente", "ajuda": "Contato, retorno e relatórios sobre o seu condomínio."}, {"id": "nota_custo_beneficio", "rotulo": "Custo-benefício do contrato", "ajuda": ""}];
+  var TEM_RENOVAR = true;
+  var $ = function(id){ return document.getElementById(id); };
+  var params = new URLSearchParams(location.search);
+  var condominio = (params.get('c') || '').trim().slice(0, 120);
+  var condominioId = parseInt(params.get('i'), 10); if (isNaN(condominioId)) condominioId = null;
+  var filial = (params.get('f') || '').trim().slice(0, 40);
+  var valores = {}, setoresVal = {};
+
+  if (condominio){ $('blocoCondominio').hidden = false; $('nomeCondominio').textContent = condominio; if (filial){ $('filialCondominio').hidden = false; $('filialCondominio').textContent = 'Filial ' + filial; } }
+  else { $('campoCondominioLivre').hidden = false; }
+
+  function classe(n){ return n <= 6 ? 'r' : (n <= 8 ? 'a' : 'v'); }
+  function escala(grupoId, permiteNaoUsei, aoMudar){
+    var wrap = document.createElement('div'); wrap.className = 'escala'; wrap.setAttribute('role', 'radiogroup');
+    for (var n = 0; n <= 10; n++){
+      (function(n){
+        var b = document.createElement('button'); b.type = 'button'; b.textContent = n; b.className = classe(n); b.setAttribute('aria-pressed', 'false'); b.setAttribute('aria-label', 'Nota ' + n);
+        b.addEventListener('click', function(){ marcar(wrap, b); aoMudar(n); }); wrap.appendChild(b);
+      })(n);
+    }
+    if (permiteNaoUsei){
+      var nb = document.createElement('button'); nb.type = 'button'; nb.textContent = 'Não usei'; nb.className = 'nao'; nb.setAttribute('aria-pressed', 'false');
+      nb.addEventListener('click', function(){ marcar(wrap, nb); aoMudar(null); }); wrap.appendChild(nb);
+    }
+    return wrap;
+  }
+  function marcar(wrap, botao){ Array.prototype.forEach.call(wrap.children, function(x){ x.setAttribute('aria-pressed', x === botao ? 'true' : 'false'); }); wrap.classList.remove('erro-campo'); }
+  function bloco(q, aoMudar, permiteNaoUsei){
+    var d = document.createElement('div'); d.className = 'q'; d.id = 'q_' + q.id;
+    d.innerHTML = '<div class="t"></div>' + (q.ajuda ? '<div class="h"></div>' : '');
+    d.querySelector('.t').textContent = q.rotulo + (permiteNaoUsei ? '' : ' *'); if (q.ajuda) d.querySelector('.h').textContent = q.ajuda;
+    d.appendChild(escala(q.id, permiteNaoUsei, aoMudar));
+    var fim = document.createElement('div'); fim.className = 'fim'; fim.innerHTML = '<span>0 = muito ruim</span><span>10 = excelente</span>'; d.appendChild(fim);
+    return d;
+  }
+  NOTAS.concat(EXTRAS_NOTAS).forEach(function(q){ $('notasPadrao').appendChild(bloco(q, function(n){ valores[q.id] = n; }, false)); });
+  SETORES.forEach(function(s){ $('setores').appendChild(bloco({ id: 'setor_' + s.nome, rotulo: s.rotulo, ajuda: s.ajuda }, function(n){ setoresVal[s.nome] = n; }, true)); });
+
+  if (TEM_RENOVAR){
+    $('pretendeRenovar').addEventListener('change', function(){});
+  }
+  function erro(msg, alvo){ var e = $('erro'); e.textContent = msg; e.hidden = false; if (alvo){ alvo.classList && alvo.classList.add('erro-campo'); alvo.scrollIntoView({ behavior: 'smooth', block: 'center' }); } }
+  function limpaErro(){ $('erro').hidden = true; }
+  Array.prototype.forEach.call(document.querySelectorAll('input[type=text],input[type=tel],input[type=email],textarea,select'), function(el){ el.addEventListener('input', function(){ el.classList.remove('erro-campo'); }); });
+  function texto(id){ var v = ($(id).value || '').trim(); return v ? v : null; }
+
+  $('f').addEventListener('submit', function(ev){
+    ev.preventDefault(); limpaErro();
+    Array.prototype.forEach.call(document.querySelectorAll('.erro-campo'), function(e){ e.classList.remove('erro-campo'); });
+    if ($('site').value) return;                                   // campo-armadilha: robôs preenchem
+    var cond = condominio || texto('condominioLivre');
+    if (!cond){ erro('Informe o nome do condomínio.', $('condominioLivre')); $('condominioLivre').focus(); return; }
+    var unidade = texto('unidade');
+    if (!unidade){ erro('Informe o número da sua casa ou apartamento.', $('unidade')); $('unidade').focus(); return; }
+    var email = texto('email');
+    if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)){ erro('Confira o e-mail digitado ou deixe em branco.', $('email')); $('email').focus(); return; }
+    var todas = NOTAS.concat(EXTRAS_NOTAS);
+    for (var k = 0; k < todas.length; k++){
+      if (valores[todas[k].id] === undefined){ erro('Falta dar uma nota em: ' + todas[k].rotulo, $('q_' + todas[k].id)); return; }
+    }
+    var notasSetores = {}, resumo = [];
+    SETORES.forEach(function(s){ var v = setoresVal[s.nome]; if (typeof v === 'number'){ notasSetores[s.nome] = v; resumo.push(s.nome + ': ' + v); } });
+    var dados = { condominio: cond, condominio_id: condominioId, filial: filial || null, unidade: unidade, nome: texto('nome'), telefone: texto('telefone'), email: email,
+      nota_geral: valores.nota_geral, nota_atendimento: valores.nota_atendimento, nota_rapidez: valores.nota_rapidez, nota_seguranca: valores.nota_seguranca,
+      notas_setores: resumo.length ? notasSetores : null, setores_resumo: resumo.length ? resumo.join(' · ') : null, comentario: texto('comentario') };
+    EXTRAS_NOTAS.forEach(function(q){ dados[q.id] = valores[q.id]; });
+    if (TEM_RENOVAR) dados.pretende_renovar = $('pretendeRenovar').value || null;
+    var botao = $('enviar'); botao.disabled = true; botao.textContent = 'Enviando...';
+    fetch(SUPABASE_URL + '/rest/v1/' + TABELA, { method: 'POST', headers: { 'apikey': SUPABASE_KEY, 'Authorization': 'Bearer ' + SUPABASE_KEY, 'Content-Type': 'application/json', 'Prefer': 'return=minimal' }, body: JSON.stringify(dados) })
+      .then(function(r){
+        if (!r.ok) return r.text().then(function(t){ throw new Error('HTTP ' + r.status + ' ' + t.slice(0, 120)); });
+        $('telaForm').hidden = true; $('telaOk').hidden = false; window.scrollTo(0, 0);
+      })
+      .catch(function(e){ console.warn(e); erro('Não foi possível enviar agora. Confira sua internet e tente de novo. Suas respostas continuam preenchidas.'); })
+      .then(function(){ botao.disabled = false; botao.textContent = 'Enviar minha opinião'; });
+  });
+  $('outra').addEventListener('click', function(){
+    $('f').reset(); valores = {}; setoresVal = {};
+    Array.prototype.forEach.call(document.querySelectorAll('.escala button'), function(b){ b.setAttribute('aria-pressed', 'false'); });
+    $('telaOk').hidden = true; $('telaForm').hidden = false; window.scrollTo(0, 0);
+  });
+})();
+</script>
+</body>
+</html>
